@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mortgage Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <style>
+        *{
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        body{
+            margin: 0px;
+        }
+        .mortgage-section{
+            background-color: #f7f8f9;
+            padding: 50px 0px;
+        }
+        
+        .container{
+            max-width: 900px;
+            margin: auto;
+            padding: 50px;
+            border-radius: 5px;
+            background-color: white;
+        }
+
+        .container .mortgage-heading {
+            padding: 0px 0px 30px 0px;
+            border-bottom: 1px solid gainsboro;
+        }
+        .mortgage-result-container{
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 10px;
+            align-items: center;
+        }
+        .mortgage-result-container .circular-graph-container, .mortgage-result-container .details-amount-container{
+            width: 50%;
+        }
+        .mortgage-result-container .circular-graph-container{
+            position: relative;
+        }
+        .mortgage-result-container .circular-graph-container .monthly-amount{
+            position: absolute;
+            top: 32%;
+            left: 32%;
+            text-align: center;
+        }
+        .mortgage-result-container .circular-graph-container .monthly-amount h2{
+            font-size: 32px;
+        margin-bottom: 0;
+        }
+        .mortgage-result-container .circular-graph-container .monthly-amount p{
+            text-align: center;
+        }
+        .details-amount-container .details-amount-term{
+            border-bottom: 1px solid gainsboro;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 10px;
+        }
+        .details-amount-container .details-amount-term .monthly-detailed-amount{
+            text-align: right;
+            color: #7e7e7e;
+            display: inline-block;
+            margin: 0px;
+            font-size: 15px;
+        }
+        .details-amount-container .details-amount-term .monthly-amount-heading h4{
+            display: inline-block;
+            margin: 0px;
+            font-size: 15px;
+        }
+        .details-amount-container .details-amount-term .monthly-amount-heading .interest-circle{
+            color: #ff6384;
+        }
+        .details-amount-container .details-amount-term .monthly-amount-heading .tax-circle{
+            color: #36a2eb;
+        }
+        .details-amount-container .details-amount-term .monthly-amount-heading .insurence-circle{
+            color: #ffce56;
+        }
+        .details-amount-container .details-amount-term .monthly-amount-heading .pmi-circle{
+            color: #4bc0c0;
+        }
+        .container .form-inputs-container{
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .container .form-inputs-container .input-container{
+            width: 33%;
+        }
+        .container .form-inputs-container .input-container label{
+            display: block;
+            font-size: 15px;
+            font-weight: 700;
+            margin: 15px 0px 15px 0px;
+        }
+        .container .form-inputs-container .input-container i{
+            color: #a1a7a8;
+            border-left: 1px solid#dce0e0;
+            border-top: 1px solid#dce0e0;
+            border-bottom: 1px solid#dce0e0;
+            border-radius: 5px 0px 0px 5px;
+            font-size: 16px;
+            padding: 12px 12px 14px 12px;
+            outline: none;
+        }
+        .container .form-inputs-container .input-container input{
+            padding: 12px 12px 12px 12px;
+            border-radius: 0px 5px 5px 0px;
+            border: 1px solid#dce0e0;
+            width: 80%;
+            font-size: 15px;
+        }
+        .container .form-inputs-container .input-container input:focus{
+            outline: none;
+            border-color: #80bdff;
+        }
+
+        .container .input-container input[type="button"]{
+            font-size: 15px;
+            font-weight: 500;
+            color: #ffffff;
+            background-color: #ff6e00;
+            border-color: #ff6e00;
+            outline: none;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            margin: 15px 0px 0px 0px;
+            cursor: pointer;
+        }
+        .container .input-container input[type="button"]:focus{
+            background-color: #00aeff;
+            border-color: #00aeff;
+            outline: #00aeff;
+        }
+        .container .input-container input[type="button"]:hover{
+            color: #ffffff;
+            background-color: #ff8c35;
+            border-color: #ff8c35;
+        }
+        .container .input-container input[type="button"]:focus, .container .input-container input[type="button"]:active{
+            background-color: #00aeff;
+            border-color: #00aeff;
+        }
+        .canvasjs-chart-tooltip a{
+            display: none;
+        }
+    </style>
+
+<script>
+    window.onload = function() {
+        var P_and_I = 10.00;
+        var P_Tax = 10.00;
+        var H_Ins = 20.00;
+        var P_M_I = 3.00;
+        //Doughnut chart generating
+        var chart = new CanvasJS.Chart("chartContainer", {
+            animationEnabled: true,
+
+                data: [{
+                        type: "doughnut",
+                        startAngle: 240,
+                        yValueFormatString: "$"+"##0.00",
+                        dataPoints: [
+                            {y: P_Tax},
+                            {y: P_and_I},
+                            {y: H_Ins},
+                            {y: P_M_I}
+                        ]
+                    }]
+            });
+                chart.render();
+                // default value
+                    document.getElementById('interst-amount').innerText = "80.00";
+                    document.getElementById('tax-amount').innerText = "250.00";
+                    document.getElementById('insurance-amount').innerText = "83.33";
+                    document.getElementById('pmi-amount').innerText = "1000.00";
+                    document.getElementById('final-main-amount').innerText = "1413.33";
+
+        var cal_btn = document.getElementById('calculate-button');
+            cal_btn.onclick = function(){
+                console.log("in button");
+                var principle_amount = document.getElementById('t-amount').value;
+                principle_amount = parseFloat(principle_amount);
+
+                var interest_rate = document.getElementById('inst-rate').value;
+                interest_rate = parseFloat(interest_rate);
+
+                var no_of_years = document.getElementById('loan-years').value;
+                no_of_years = parseFloat(no_of_years);
+
+                var down_payment = document.getElementById('d-payment').value;
+                down_payment = parseFloat(down_payment);
+
+                var property_tax = document.getElementById('prop-tax').value;
+                property_tax = parseFloat(property_tax);
+
+                var home_insurance = document.getElementById('h-insurance').value;
+                home_insurance = parseFloat(home_insurance);
+
+                var pmi_dollars = document.getElementById('pmi-dollars').value;
+                pmi_dollars = parseFloat(pmi_dollars);
+
+                if(isNaN(principle_amount) || isNaN(interest_rate) || isNaN(no_of_years) || isNaN(down_payment) || isNaN(property_tax) || isNaN(home_insurance) || isNaN(pmi_dollars)){
+                    alert("Invalid input,..!");
+                    document.getElementById('t-amount').value = ""; 
+                    document.getElementById('inst-rate').value = "";
+                    document.getElementById('loan-years').value = "";
+                    document.getElementById('d-payment').value = "";
+                    document.getElementById('prop-tax').value = "";
+                    document.getElementById('h-insurance').value = "";
+                    document.getElementById('pmi-dollars').value = ""; 
+                }
+                else{
+                    console.log("interest is " + r);
+                    interest_rate = interest_rate/100.0;
+                    var n = no_of_years*12;
+                    var r = interest_rate/12.0;
+                    var p = principle_amount-down_payment;
+                    // P[r(1+r)^n/((1+r)^n)-1)]
+                    var mortage_amount = p*((r*((1+r)**n))/(((1+r)**n)-1));
+                    mortage_amount = parseFloat(mortage_amount.toFixed(0)); 
+
+                    // Principle & Interest
+                    document.getElementById('interst-amount').innerText = mortage_amount.toFixed(2);
+                    P_and_I = mortage_amount.toFixed(2);
+
+                    // Property Tax
+                    property_tax = property_tax/n;
+                    document.getElementById('tax-amount').innerText = property_tax.toFixed(2); 
+                    P_Tax = property_tax.toFixed(2); 
+
+                    // Home Insurance
+                    home_insurance = home_insurance/n;
+                    document.getElementById('insurance-amount').innerText = home_insurance.toFixed(2); 
+                    H_Ins = home_insurance.toFixed(2);
+                    // PMI
+                    document.getElementById('pmi-amount').innerText = pmi_dollars.toFixed(2);
+                    P_M_I = pmi_dollars.toFixed(2);
+                    
+                    // final total
+                    mortage_amount = mortage_amount + property_tax + home_insurance + pmi_dollars;
+                    
+                    document.getElementById('final-main-amount').innerText = mortage_amount.toFixed(2);
+                    
+
+                    //Doughnut chart generating
+                    var chart = new CanvasJS.Chart("chartContainer", {
+                        animationEnabled: true,
+
+                            data: [{
+                                    type: "doughnut",
+                                    startAngle: 240,
+                                    yValueFormatString: "$"+"##0.00",
+                                    dataPoints: [
+                                        {y: P_Tax},
+                                        {y: P_and_I},
+                                        {y: H_Ins},
+                                        {y: P_M_I}
+                                    ]
+                                }]
+                        });
+                            chart.render();
+                    }
+                    
+                    var a = document.getElementById('chartContainer');
+                    a = a.childNodes[0];
+                    a = a.childNodes[4];
+                    console.log(a);
+                    a.style.display = "none";
+                }
+
+            }
+    
+    
+    //  var chart = new CanvasJS.Chart("chartContainer", {
+    //      animationEnabled: true,
+
+    //          data: [{
+    //         type: "doughnut",
+    //         startAngle: 240,
+    //         yValueFormatString: "##0.00\"%\"",
+    //         dataPoints: [
+    //             {y: 79.45},
+    //             {y: 7.31},
+    //             {y: 7.06},
+    //             {y: 4.91}
+    //         ]
+    //     }]
+    // });
+    //     chart.render();
+    // }
+    </script>
+</head>
+<body >
+    <section class="mortgage-section">
+        <div class="container">
+            <div class="mortgage-heading">
+                <h3>Mortgage Calculator</h3>
+            </div>
+            <div class="mortgage-result-container">
+                <div class="circular-graph-container">
+
+                    <div id="chartContainer" style="height: 300px; max-width: 920px; margin: 0px auto;"></div>
+
+                    <div class="monthly-amount">
+                        <h2>$ <span id="final-main-amount">0.00</span></h2>
+                        <p id="montly-unit-id">Monthly</p>
+                    </div>
+                </div>
+                <div class="details-amount-container">
+                    <div class="details-amount-term interest-monthly">
+                        <div class="monthly-amount-heading">
+                            <i class="fa fa-circle-o interest-circle" aria-hidden="true"></i>
+                            <h4> Principal & Interest</h4>
+                        </div>
+                        <p class="monthly-detailed-amount">$ <span id="interst-amount">0.00</span></p>
+                    </div>
+                    <div class="details-amount-term tax-monthly">
+                        <div class="monthly-amount-heading">
+                            <i class="fa fa-circle-o tax-circle" aria-hidden="true"></i>
+                            <h4> Property Tax</h4>
+                        </div>
+                        <p class="monthly-detailed-amount">$ <span id="tax-amount">0.00</span></p>
+                    </div>
+                    <div class="details-amount-term insurance-monthly">
+                        <div class="monthly-amount-heading">
+                            <i class="fa fa-circle-o insurence-circle" aria-hidden="true"></i>
+                            <h4> Home Insurance</h4>
+                        </div>
+                        <p class="monthly-detailed-amount">$ <span id="insurance-amount">0.00</span></p>
+                    </div>
+                    <div class="details-amount-term pmi-monthly">
+                        <div class="monthly-amount-heading">
+                            <i class="fa fa-circle-o pmi-circle" aria-hidden="true"></i>
+                            <h4> PMI</h4>
+                        </div>
+                        <p class="monthly-detailed-amount">$ <span id="pmi-amount">0.00</span></p>
+                    </div>
+                </div>
+            </div>
+            <form>
+                <div class="form-inputs-container">
+                    <div class="input-container">
+                        <label for="t-amount">Total Amount</label>
+                        <i class="fa fa-usd" aria-hidden="true"></i><input type="text" id="t-amount" name="t-amount" value="11000" placeholder="Total Amount">
+                    </div>
+                    <div class="input-container">
+                        <label for="d-payment">Down Payment</label>
+                        <i class="fa fa-usd" aria-hidden="true"></i><input type="text" id="d-payment" name="d-payment" value="1650" placeholder="Down Payment">
+                    </div>
+                    <div class="input-container">
+                        <label for="inst-rate">Interest Rate</label>
+                        <i class="fa fa-percent" aria-hidden="true"></i><input type="text" id="inst-rate" name="inst-rate" value="3.5" placeholder="Interest Rate">
+                    </div>
+                    <div class="input-container">
+                        <label for="loan-years">Loan Terms (Years)</label>
+                        <i class="fa fa-calendar" aria-hidden="true"></i><input type="text" id="loan-years" name="loan-years" value="12" placeholder="Loan Terms (Years)">
+                    </div>
+    
+                    <div class="input-container">
+                        <label for="prop-tax">Property Tax</label>
+                        <i class="fa fa-usd" aria-hidden="true"></i><input type="text" id="prop-tax" name="prop-tax" value="3000" placeholder="Property Tax">
+                    </div>
+                    <div class="input-container">
+                        <label for="h-insurance">Home Insurance</label>
+                        <i class="fa fa-usd" aria-hidden="true"></i><input type="text" id="h-insurance" name="h-insurance" value="1000" placeholder="Home Insurance">
+                    </div>
+                    <div class="input-container">
+                        <label for="pmi-dollars">PMI</label>
+                        <i class="fa fa-usd" aria-hidden="true"></i><input type="text" id="pmi-dollars" name="pmi-dollars" value="1000" placeholder="PMI">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <input type="button" value="Calculate" id="calculate-button">
+                </div>
+            </form>
+        </div>
+    </section>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <!-- <script>
+        function MainFunction(){
+            var cal_btn = document.getElementById('calculate-button');
+            cal_btn.setAttribute("onclick", function (){
+                var principle_amount = document.getElementById('t-amount').value;
+                principle_amount = parseInt(principle_amount);
+
+                var interest_rate = document.getElementById('inst-rate').value;
+                interest_rate = parseInt(interest_rate);
+
+                var no_of_years = document.getElementById('loan-years').value;
+                no_of_years = parseInt(no_of_years);
+
+                var down_payment = document.getElementById('d-payment').value;
+                down_payment = parseInt(down_payment);
+
+                var property_tax = document.getElementById('prop-tax').value;
+                property_tax = parseInt(property_tax);
+
+                var home_insurance = document.getElementById('h-insurance').value;
+                home_insurance = parseInt(home_insurance);
+
+                var pmi_dollars = document.getElementById('pmi-dollars').value;
+                pmi_dollars = parseInt(pmi_dollars);
+
+                if(principle_amount.isNaN(NaN) || interest_rate.isNaN(NaN) || no_of_years.isNaN(NaN) || down_payment.isNaN(NaN) || property_tax.isNaN(NaN) || home_insurance.isNaN(NaN)|| pmi_dollars.isNaN(NaN)){
+                    alert("Invalid input,..!");
+                    document.getElementById('t-amount').value = ""; 
+                    document.getElementById('inst-rate').value = "";
+                    document.getElementById('loan-years').value = "";
+                    document.getElementById('d-payment').value = "";
+                    document.getElementById('prop-tax').value = "";
+                    document.getElementById('h-insurance').value = "";
+                    document.getElementById('pmi-dollars').value = ""; 
+                }
+                else{
+                    interest_rate = interest_rate/100.0;
+                    var r = interest_rate/12;
+                    var n = no_of_years*12;
+                    n = no_of_month.toFixed(2);
+                    var p = principle_amount-down_payment;
+                    // P[r(1+r)^n/((1+r)^n)-1)]
+                    var mortage_amount = p*((r*((1+r)**n))/(((1+r)**n)-1));
+                    mortage_amount = mortage_amount.toFixed(2);
+
+                    document.getElementById('interst-amount').innerText = r; 
+                    property_tax = property_tax/n;
+                    document.getElementById('tax-amount').innerText = property_tax; 
+                    home_insurance = home_insurance/n;
+                    document.getElementById('insurance-amount').innerText = home_insurance;
+                    document.getElementById('pmi-amount').innerText = pmi_dollars;
+                    
+                    // final total
+                    mortage_amount = mortage_amount + property_tax + home_insurance + pmi_dollars;
+
+                    document.getElementById('final-main-amount').innerText = mortage_amount;
+
+                }
+
+            });
+        }
+    </script> -->
+</body>
+</html>
